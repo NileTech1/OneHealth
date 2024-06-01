@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  HospitalAdmin
+  SuperAdmin
+  RecordOffice
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now())
+  firstName     String
+  middleName    String
+  lastName      String
+  cardId        String         @unique
+  email         String?        @unique
+  contact       String         @unique
+  age           Int
+  address       String
+  gender        String
+  hospitals     Hospital[]
+  recordOffices RecordOffice[]
+  patient       Patient?
+  doctor        Doctor?
+  labratorist   Labratorist?
+}
+
+model SuperAdmin {
+  id        Int        @id @unique
+  email     String     @unique
+  contact   String     @unique
+  password  String
+  role      Role       @default(SuperAdmin)
+  hospitals Hospital[]
+}
+
+model Hospital {
+  id            Int            @id @default(autoincrement())
+  adminId       Int            @unique
+  user          User           @relation(fields: [adminId], references: [id])
+  name          String
+  address       String
+  password      String
+  doctors       Doctor[]
+  labratorists  Labratorist[]
+  recordOffices RecordOffice[]
+  patients      Patient[]
+  history       History[]
+  reports       Report[]
+  privileges    Privilege[]
+  role          Role           @default(HospitalAdmin)
+  superAdminId  Int
+  superAdmin    SuperAdmin     @relation(fields: [superAdminId], references: [id])
+}
+
+model Doctor {
+  id                Int            @id @default(autoincrement())
+  doctorId          User           @relation(fields: [userId], references: [id])
+  userId            Int            @unique
+  fieldOfSpeciality String?
+  password          String
+  graduateSchool    String?
+  hospitals         Hospital[]
+  privileges        Privilege[]
+  patients          Patient[]
+  history           History[]
+  reports           Report[]
+  recordOffices     RecordOffice[]
+}
+
+model RecordOffice {
+  id                Int           @id @default(autoincrement())
+  userId            Int           @unique
+  user              User          @relation(fields: [userId], references: [id])
+  password          String
+  fieldOfSpeciality String?
+  graduateSchool    String?
+  privileges        Privilege[]
+  patient           Patient[]
+  hospitals         Hospital      @relation(fields: [hospitalId], references: [id])
+  hospitalId        Int
+  doctor            Doctor[]
+  labratorists      Labratorist[]
+  role              Role          @default(RecordOffice)
+}
+
+model Labratorist {
+  id                Int           @id @default(autoincrement())
+  userId            Int           @unique
+  user              User          @relation(fields: [userId], references: [id])
+  password          String
+  fieldOfSpeciality String?
+  graduateSchool    String?
+  hospitals         Hospital[]
+  privileges        Privilege[]
+  patients          Patient[]
+  reports           Report[]
+  RecordOffice      RecordOffice? @relation(fields: [recordOfficeId], references: [id])
+  recordOfficeId    Int?
+}
+
+model Patient {
+  id            Int            @id @default(autoincrement())
+  patientId     Int            @unique
+  user          User           @relation(fields: [patientId], references: [id])
+  hospitals     Hospital[]
+  recordOffices RecordOffice[]
+  doctors       Doctor[]
+  history       History[]
+  labratorists  Labratorist[]
+  reports       Report[]
+}
+
+model Privilege {
+  id             Int           @id @default(autoincrement())
+  canCreate      Boolean       @default(false)
+  canView        Boolean       @default(false)
+  canUpdate      Boolean       @default(false)
+  canDelete      Boolean       @default(false)
+  hospitalId     Int?
+  hospital       Hospital?     @relation(fields: [hospitalId], references: [id])
+  doctorId       Int?
+  doctor         Doctor?       @relation(fields: [doctorId], references: [id])
+  labratoristId  Int?
+  labratorist    Labratorist?  @relation(fields: [labratoristId], references: [id])
+  recordOfficeId Int?
+  recordOffice   RecordOffice? @relation(fields: [recordOfficeId], references: [id])
+}
+
+model History {
+  id         Int      @id @default(autoincrement())
+  historyDay DateTime
+  history    String
+  hospitalId Int
+  hospital   Hospital @relation(fields: [hospitalId], references: [id])
+  doctorId   Int
+  doctor     Doctor   @relation(fields: [doctorId], references: [id])
+  patientId  Int
+  patient    Patient  @relation(fields: [patientId], references: [id])
+}
+
+model Report {
+  id            Int         @id @default(autoincrement())
+  reportedDay   DateTime
+  reports       String
+  hospitalId    Int
+  hospital      Hospital    @relation(fields: [hospitalId], references: [id])
+  doctorId      Int?
+  doctor        Doctor?     @relation(fields: [doctorId], references: [id])
+  patientId     Int
+  patient       Patient     @relation(fields: [patientId], references: [id])
+  labratorists  Labratorist @relation(fields: [labratoristId], references: [id])
+  labratoristId Int
+}

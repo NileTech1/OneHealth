@@ -1,0 +1,7 @@
+{
+    "watch": [
+        "."
+    ],
+    "ext": "js,json",
+    "exec": "next dev"
+}
