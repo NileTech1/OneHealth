@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 
 export async function GET() {
     try {
-        const users = await prisma.user.findMany();
-        return NextResponse.json(users);
+        const reports = await prisma.report.findMany();
+        return NextResponse.json(reports);
     } catch (error) {
-        console.error('Error fetching users:', error);
-        return NextResponse.json({ error: 'Error fetching users' }, { status: 500 });
+        console.error('Error fetching doctors:', error);
+        return NextResponse.json({ error: 'Error fetching doctors' }, { status: 500 });
     }
 }

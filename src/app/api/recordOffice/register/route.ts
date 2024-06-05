@@ -22,7 +22,6 @@ export async function POST(request: Request) {
                 role: 'RecordOffice'
             },
             create: {
-                userId,
                 password,
                 fieldOfSpeciality: fieldOfSpeciality || null,
                 graduateSchool: graduateSchool || null,

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
         const upsertResult = await prisma.doctor.upsert({
             where: {
-                userId: data.userId,
+                doctorId: data.userId,
             },
             update: {
                 fieldOfSpeciality: data.fieldOfSpeciality || null,
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
                 graduateSchool: data.graduateSchool || null,
             },
             create: {
-                userId: data.userId,
+                doctorId: data.userId,
                 fieldOfSpeciality: data.fieldOfSpeciality || null,
                 password: data.password,
                 graduateSchool: data.graduateSchool || null,

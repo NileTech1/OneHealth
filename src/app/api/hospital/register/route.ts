@@ -6,15 +6,15 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const { name, address, password, adminId, superAdminId, role } = data;
+        const { name, address, password, hospitaladminId, superAdminId, role } = data;
 
         // Validate required fields
-        if (!name || !address || !password || !adminId || !superAdminId) {
+        if (!name || !address || !password || !hospitaladminId || !superAdminId) {
             return NextResponse.json({ error: 'Required fields are missing' }, { status: 400 });
         }
 
         const newHospital = await prisma.hospital.upsert({
-            where: { adminId }, // Assuming adminId is unique
+            where: { hospitaladminId }, // Assuming adminId is unique
             update: {
                 name,
                 address,
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
                 name,
                 address,
                 password,
-                adminId,
+                hospitaladminId,
                 superAdminId,
                 role: role || 'HospitalAdmin', // Default role is 'HospitalAdmin'
             },

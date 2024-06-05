@@ -1,43 +1,34 @@
-import { NextResponse } from 'next/server';
+// history/register/route.ts
+
+import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 
+// Initialize Prisma client
 const prisma = new PrismaClient();
 
-export async function POST(request: Request) {
+export default async function POST(request: NextApiRequest, response: NextApiResponse) {
     try {
-        const data = await request.json();
+        const { historyDay, history, hospitalId, doctorId, patientId } = request.body;
 
-        if (!data.cardId || !data.firstName || !data.middleName || !data.lastName || !data.contact || !data.age || !data.address || !data.gender) {
-            return NextResponse.json({ error: 'Required fields are missing' }, { status: 400 });
+        // Validate required fields
+        if (!historyDay || !history || !hospitalId || !doctorId || !patientId) {
+            return response.status(400).json({ error: 'Required fields are missing' });
         }
 
-        const newUser = await prisma.user.upsert({
-            where: { cardId: data.cardId },
-            update: {
-                firstName: data.firstName,
-                middleName: data.middleName,
-                lastName: data.lastName,
-                email: data.email || null,
-                contact: data.contact,
-                age: data.age,
-                address: data.address,
-                gender: data.gender,
-            },
-            create: {
-                firstName: data.firstName,
-                middleName: data.middleName,
-                lastName: data.lastName,
-                email: data.email || null,
-                contact: data.contact,
-                age: data.age,
-                address: data.address,
-                gender: data.gender,
-                cardId: data.cardId,
-            },
+        // Create new history entry
+        const newHistory = await prisma.history.create({
+            data: {
+                historyDay,
+                history,
+                hospital: { connect: { id: parseInt(hospitalId) } },
+                doctor: { connect: { id: parseInt(doctorId) } },
+                patient: { connect: { id: parseInt(patientId) } }
+            }
         });
-        return NextResponse.json(newUser);
+
+        return response.status(200).json(newHistory);
     } catch (error: any) {
-        console.error('Error creating or updating user:', error);
-        return NextResponse.json({ error: 'Error creating or updating user', details: error.message }, { status: 500 });
+        console.error('Error creating history entry:', error);
+        return response.status(500).json({ error: 'Error creating history entry', details: error.message });
     }
 }

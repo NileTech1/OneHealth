@@ -5,39 +5,27 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
     try {
-        const data = await request.json();
+        const { reports, hospitalId, doctorId, patientId, labratoristId } = request.body;
 
-        if (!data.cardId || !data.firstName || !data.middleName || !data.lastName || !data.contact || !data.age || !data.address || !data.gender) {
-            return NextResponse.json({ error: 'Required fields are missing' }, { status: 400 });
+        // Validate required fields
+        if (!reports || !hospitalId || !patientId || !labratoristId) {
+            return NextResponse.json({ error: 'Required fields are missing' });
         }
 
-        const newUser = await prisma.user.upsert({
-            where: { cardId: data.cardId },
-            update: {
-                firstName: data.firstName,
-                middleName: data.middleName,
-                lastName: data.lastName,
-                email: data.email || null,
-                contact: data.contact,
-                age: data.age,
-                address: data.address,
-                gender: data.gender,
-            },
-            create: {
-                firstName: data.firstName,
-                middleName: data.middleName,
-                lastName: data.lastName,
-                email: data.email || null,
-                contact: data.contact,
-                age: data.age,
-                address: data.address,
-                gender: data.gender,
-                cardId: data.cardId,
-            },
+        // Create new report entry
+        const newReport = await prisma.report.create({
+            data: {
+                reports,
+                hospital: { connect: { id: parseInt(hospitalId) } },
+                doctor: doctorId ? { connect: { id: parseInt(doctorId) } } : undefined,
+                patient: { connect: { id: parseInt(patientId) } },
+                labratorists: { connect: { id: parseInt(labratoristId) } }
+            }
         });
-        return NextResponse.json(newUser);
+
+        return NextResponse.json(newReport);
     } catch (error: any) {
-        console.error('Error creating or updating user:', error);
-        return NextResponse.json({ error: 'Error creating or updating user', details: error.message }, { status: 500 });
+        console.error('Error creating report entry:', error);
+        return NextResponse.json({ error: 'Error creating report entry', details: error.message });
     }
 }

@@ -3,46 +3,40 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-
-export async function DELETE(request: Request) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
-    const body = await request.json();
-    const { id } = body;
+    const { id } = params;
 
     if (!id) {
       console.error('ID is required but not provided');
-      return NextResponse.json({ error: 'id is required' }, { status: 400 });
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    console.log(`Attempting to delete Doctor with id: ${id}`);
+    console.log(`Attempting to delete Record Office with id: ${id}`);
 
-    const doctor = await prisma.doctor.findUnique({
+    const recordOffice = await prisma.recordOffice.findUnique({
       where: { id: Number(id) },
     });
 
-    if (!doctor) {
-      console.log(`Doctor with id ${id} not found`);
-      return NextResponse.json({ error: 'Doctor not found' }, { status: 404 });
+    if (!recordOffice) {
+      console.log(`Record Office with id ${id} not found`);
+      return NextResponse.json({ error: 'Record Office not found' }, { status: 404 });
     }
 
-    await prisma.doctor.delete({
+    await prisma.recordOffice.delete({
       where: { id: Number(id) },
     });
 
-    console.log(`Doctor with id ${id} deleted successfully`);
+    console.log(`Record Office with id ${id} deleted successfully`);
 
-    return NextResponse.json({ message: 'Doctor deleted successfully' });
+    return NextResponse.json({ message: 'Record Office deleted successfully' });
   } catch (error: any) {
-    console.error('Error deleting doctor:', error);
-
-    if (error.message.includes('Invalid JSON')) {
-      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
-    }
+    console.error('Error deleting Record Office:', error);
 
     if (error.code === 'P2025') {
-      return NextResponse.json({ error: 'Doctor not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Record Office not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ error: 'Error deleting doctor', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Error deleting Record Office', details: error.message }, { status: 500 });
   }
 }

@@ -7,10 +7,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   try {
     const data = await request.json();
     const { id } = params;
-    const { name, address, password, adminId, superAdminId, role } = data;
+    const { name, address, password, hospitaladminId, superAdminId, role } = data;
 
     // Validate required fields
-    if (!id || (!name && !address && !password && !adminId && !superAdminId && !role)) {
+    if (!id || (!name && !address && !password && !hospitaladminId && !superAdminId && !role)) {
       return NextResponse.json({ error: 'No data provided for update or missing ID' }, { status: 400 });
     }
 
@@ -20,7 +20,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         name,
         address,
         password,
-        adminId,
+        hospitaladminId,
         superAdminId,
         role: role || 'HospitalAdmin', // Default role is 'HospitalAdmin'
       },

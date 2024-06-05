@@ -30,6 +30,7 @@ model User {
   patient       Patient?
   doctor        Doctor?
   labratorist   Labratorist?
+  triage        Triage?
 }
 
 model SuperAdmin {
@@ -42,53 +43,55 @@ model SuperAdmin {
 }
 
 model Hospital {
-  id            Int            @id @default(autoincrement())
-  adminId       Int            @unique
-  user          User           @relation(fields: [adminId], references: [id])
-  name          String
-  address       String
-  password      String
-  doctors       Doctor[]
-  labratorists  Labratorist[]
-  recordOffices RecordOffice[]
-  patients      Patient[]
-  history       History[]
-  reports       Report[]
-  privileges    Privilege[]
-  role          Role           @default(HospitalAdmin)
-  superAdminId  Int
-  superAdmin    SuperAdmin     @relation(fields: [superAdminId], references: [id])
-}
-
-model Doctor {
-  id                Int            @id @default(autoincrement())
-  doctorId          User           @relation(fields: [userId], references: [id])
-  userId            Int            @unique
-  fieldOfSpeciality String?
-  password          String
-  graduateSchool    String?
-  hospitals         Hospital[]
-  privileges        Privilege[]
-  patients          Patient[]
-  history           History[]
-  reports           Report[]
-  recordOffices     RecordOffice[]
+  id              Int            @id @default(autoincrement())
+  hospitaladminId Int            @unique
+  user            User           @relation(fields: [hospitaladminId], references: [id])
+  name            String
+  address         String
+  password        String
+  superAdminId    Int
+  superAdmin      SuperAdmin     @relation(fields: [superAdminId], references: [id])
+  role            Role           @default(HospitalAdmin)
+  privileges      Privilege[]
+  recordOffices   RecordOffice[]
+  triages         Triage[]
+  doctors         Doctor[]
+  labratorists    Labratorist[]
+  patients        Patient[]
+  histories       History[]
+  reports         Report[]
+  triageReports   TriageReport[]
 }
 
 model RecordOffice {
   id                Int           @id @default(autoincrement())
   userId            Int           @unique
   user              User          @relation(fields: [userId], references: [id])
+  role              Role          @default(RecordOffice)
   password          String
   fieldOfSpeciality String?
   graduateSchool    String?
-  privileges        Privilege[]
-  patient           Patient[]
   hospitals         Hospital      @relation(fields: [hospitalId], references: [id])
   hospitalId        Int
-  doctor            Doctor[]
+  privileges        Privilege[]
+  patients          Patient[]
+  doctors           Doctor[]
   labratorists      Labratorist[]
-  role              Role          @default(RecordOffice)
+  triages           Triage[]
+}
+
+model Doctor {
+  id                Int            @id @default(autoincrement())
+  doctorId          Int            @unique
+  user              User           @relation(fields: [doctorId], references: [id])
+  password          String
+  fieldOfSpeciality String?
+  graduateSchool    String?
+  hospitals         Hospital[]
+  privileges        Privilege[]
+  patients          Patient[]
+  history           History[]
+  recordOffices     RecordOffice[]
 }
 
 model Labratorist {
@@ -106,6 +109,20 @@ model Labratorist {
   recordOfficeId    Int?
 }
 
+model Triage {
+  id                Int            @id @default(autoincrement())
+  triageId          Int            @unique
+  user              User           @relation(fields: [triageId], references: [id])
+  password          String
+  fieldOfSpeciality String?
+  graduateSchool    String?
+  hospitals         Hospital[]
+  privileges        Privilege[]
+  patients          Patient[]
+  recordOffices     RecordOffice[]
+  triageReports     TriageReport[]
+}
+
 model Patient {
   id            Int            @id @default(autoincrement())
   patientId     Int            @unique
@@ -113,9 +130,11 @@ model Patient {
   hospitals     Hospital[]
   recordOffices RecordOffice[]
   doctors       Doctor[]
-  history       History[]
+  histories     History[]
   labratorists  Labratorist[]
   reports       Report[]
+  triages       Triage[]
+  triageReports TriageReport[]
 }
 
 model Privilege {
@@ -132,11 +151,13 @@ model Privilege {
   labratorist    Labratorist?  @relation(fields: [labratoristId], references: [id])
   recordOfficeId Int?
   recordOffice   RecordOffice? @relation(fields: [recordOfficeId], references: [id])
+  triageId       Int?
+  triage         Triage?       @relation(fields: [triageId], references: [id])
 }
 
 model History {
   id         Int      @id @default(autoincrement())
-  historyDay DateTime
+  historyDay DateTime @default(now())
   history    String
   hospitalId Int
   hospital   Hospital @relation(fields: [hospitalId], references: [id])
@@ -148,14 +169,24 @@ model History {
 
 model Report {
   id            Int         @id @default(autoincrement())
-  reportedDay   DateTime
+  reportedDay   DateTime    @default(now())
   reports       String
   hospitalId    Int
   hospital      Hospital    @relation(fields: [hospitalId], references: [id])
-  doctorId      Int?
-  doctor        Doctor?     @relation(fields: [doctorId], references: [id])
   patientId     Int
   patient       Patient     @relation(fields: [patientId], references: [id])
-  labratorists  Labratorist @relation(fields: [labratoristId], references: [id])
   labratoristId Int
+  labratorists  Labratorist @relation(fields: [labratoristId], references: [id])
+}
+
+model TriageReport {
+  id            Int      @id @default(autoincrement())
+  triagedDay    DateTime @default(now())
+  triageReports String
+  hospitalId    Int
+  hospital      Hospital @relation(fields: [hospitalId], references: [id])
+  patientId     Int
+  patient       Patient  @relation(fields: [patientId], references: [id])
+  triageId      Int
+  triage        Triage   @relation(fields: [triageId], references: [id])
 }

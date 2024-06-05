@@ -7,7 +7,7 @@ export async function GET() {
     try {
         const doctors = await prisma.doctor.findMany({
             include: {
-                doctorId: true, // Include the related user
+                user: true, // Include the related user
             }
         });
         return NextResponse.json(doctors);
