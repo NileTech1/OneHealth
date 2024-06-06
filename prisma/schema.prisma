@@ -80,6 +80,20 @@ model RecordOffice {
   triages           Triage[]
 }
 
+model Triage {
+  id                Int            @id @default(autoincrement())
+  triageId          Int            @unique
+  user              User           @relation(fields: [triageId], references: [id])
+  password          String
+  fieldOfSpeciality String?
+  graduateSchool    String?
+  hospitals         Hospital[]
+  privileges        Privilege[]
+  patients          Patient[]
+  recordOffices     RecordOffice[]
+  triageReports     TriageReport[]
+}
+
 model Doctor {
   id                Int            @id @default(autoincrement())
   doctorId          Int            @unique
@@ -107,20 +121,6 @@ model Labratorist {
   reports           Report[]
   RecordOffice      RecordOffice? @relation(fields: [recordOfficeId], references: [id])
   recordOfficeId    Int?
-}
-
-model Triage {
-  id                Int            @id @default(autoincrement())
-  triageId          Int            @unique
-  user              User           @relation(fields: [triageId], references: [id])
-  password          String
-  fieldOfSpeciality String?
-  graduateSchool    String?
-  hospitals         Hospital[]
-  privileges        Privilege[]
-  patients          Patient[]
-  recordOffices     RecordOffice[]
-  triageReports     TriageReport[]
 }
 
 model Patient {

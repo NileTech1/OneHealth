@@ -7,17 +7,16 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   try {
     const data = await request.json();
     const { id } = params;
-    const { name, fieldOfSpeciality, graduateSchool, hospitalId, password } = data;
+    const { fieldOfSpeciality, graduateSchool, hospitalId, password } = data;
 
     // Validate required fields
-    if (!id || (!name && !fieldOfSpeciality && !graduateSchool && !hospitalId && !password)) {
+    if (!id || (!fieldOfSpeciality && !graduateSchool && !hospitalId && !password)) {
       return NextResponse.json({ error: 'No data provided for update or missing ID' }, { status: 400 });
     }
 
     const updatedDoctor = await prisma.doctor.update({
       where: { id: Number(id) },
       data: {
-
         fieldOfSpeciality,
         graduateSchool,
         password,

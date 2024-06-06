@@ -11,24 +11,16 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Required fields are missing' }, { status: 400 });
         }
 
-        const upsertResult = await prisma.doctor.upsert({
-            where: {
-                doctorId: data.userId,
-            },
-            update: {
-                fieldOfSpeciality: data.fieldOfSpeciality || null,
-                password: data.password,
-                graduateSchool: data.graduateSchool || null,
-            },
-            create: {
-                doctorId: data.userId,
+        const createResult = await prisma.doctor.create({
+            data: {
+                doctorId: parseInt(data.userId), // Convert userId to an integer
                 fieldOfSpeciality: data.fieldOfSpeciality || null,
                 password: data.password,
                 graduateSchool: data.graduateSchool || null,
             },
         });
 
-        return NextResponse.json(upsertResult);
+        return NextResponse.json(createResult);
     } catch (error: any) {
         console.error('Error creating doctor:', error);
         return NextResponse.json({ error: 'Error creating doctor', details: error.message }, { status: 500 });

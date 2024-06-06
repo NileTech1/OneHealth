@@ -8,6 +8,7 @@ export async function GET() {
         const patients = await prisma.patient.findMany({
             include: {
                 user: true,
+                hospitals: true
             }
         });
         return NextResponse.json(patients);

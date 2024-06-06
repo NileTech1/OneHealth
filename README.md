@@ -1,3 +1,5 @@
+
+
 ### SuperAdmin
 -
 
@@ -11,12 +13,22 @@ Delete      - Not
 
 ### Hospitals
 
-### Doctor
+#### RecordOffice
+change the userId to -> recordOfficeId
 
+#### Triage
+
+### Doctor
 
 #### Patient
 
-#### Record
+#### triageReport
+
+#### history
+
+#### report
+
+
 
 
 

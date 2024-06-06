@@ -1,42 +1,29 @@
-import { NextResponse } from 'next/server';
+// pages/api/patient/register.ts
+
+import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function POST(request: Request) {
+export default async function POST(req: NextApiRequest, res: NextApiResponse) {
     try {
-        const data = await request.json();
+        const { patientId, } = req.body;
 
-        // Extract data from the request
-        const { userId } = data;
-
-        // Validate required fields
-        if (!userId) {
-            return NextResponse.json({ error: 'Required fields are missing' }, { status: 400 });
+        // Check if the patientId is provided
+        if (!patientId) {
+            return res.status(400).json({ error: 'patientId is required' });
         }
 
-        // Check if the patient already exists
-        const existingPatient = await prisma.patient.findUnique({
-            where: { id: userId },
-        });
-
-        if (existingPatient) {
-            return NextResponse.json({ error: 'Patient already exists' }, { status: 409 });
-        }
-
-        // Create the patient
+        // Create a new patient
         const newPatient = await prisma.patient.create({
             data: {
-                user: { connect: { id: userId } },
-            },
-            include: {
-                user: true,
+                patientId,
             },
         });
 
-        return NextResponse.json(newPatient);
-    } catch (error: any) {
-        console.error('Error creating patient:', error);
-        return NextResponse.json({ error: 'Error creating patient', details: error.message }, { status: 500 });
+        res.status(201).json(newPatient);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while registering the patient' });
     }
 }
